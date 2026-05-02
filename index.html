@@ -10,14 +10,23 @@
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.7/aframe/build/aframe-ar.min.js"></script>
 
   <style>
-    html, body {
+    html,
+    body {
       margin: 0;
+      padding: 0;
       overflow: hidden;
+      width: 100%;
+      height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
       background: #000;
     }
 
-    video {
+    /*
+      iPhone Safari / Android Chrome 用
+      AR.js のカメラ映像を canvas の下に正しく表示する設定
+    */
+    video,
+    #arjs-video {
       position: fixed !important;
       top: 0 !important;
       left: 0 !important;
@@ -25,38 +34,56 @@
       height: 100vh !important;
       object-fit: cover !important;
       z-index: 0 !important;
+      opacity: 1 !important;
+      display: block !important;
+      background: transparent !important;
     }
 
+    a-scene {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      background: transparent !important;
+      z-index: 1 !important;
+    }
+
+    canvas,
     canvas.a-canvas {
       position: fixed !important;
       top: 0 !important;
       left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      background: transparent !important;
       z-index: 1 !important;
     }
 
     #startOverlay {
       position: fixed;
       inset: 0;
-      z-index: 9999;
+      z-index: 9999 !important;
       background:
-        radial-gradient(circle at center top, rgba(90,160,100,0.35), transparent 45%),
-        linear-gradient(180deg, rgba(4,22,12,0.96), rgba(0,0,0,0.96));
+        radial-gradient(circle at center top, rgba(90, 160, 100, 0.35), transparent 45%),
+        linear-gradient(180deg, rgba(4, 22, 12, 0.96), rgba(0, 0, 0, 0.96));
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
       padding: 24px;
+      box-sizing: border-box;
     }
 
     #startCard {
       max-width: 460px;
       padding: 22px;
       border-radius: 22px;
-      background: rgba(255,255,255,0.10);
-      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       backdrop-filter: blur(10px);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
     }
 
     #startCard h1 {
@@ -80,7 +107,8 @@
       font-weight: 700;
       color: white;
       background: linear-gradient(135deg, #2fa36b, #75b843);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+      cursor: pointer;
     }
 
     #markerGuide {
@@ -88,14 +116,14 @@
       top: calc(10px + env(safe-area-inset-top));
       left: 10px;
       right: 10px;
-      z-index: 18;
+      z-index: 30 !important;
       color: white;
       text-align: center;
       font-size: 13px;
       line-height: 1.5;
       padding: 8px 12px;
       border-radius: 14px;
-      background: rgba(0,0,0,0.42);
+      background: rgba(0, 0, 0, 0.42);
       backdrop-filter: blur(8px);
       pointer-events: none;
     }
@@ -104,15 +132,14 @@
       position: fixed;
       left: 0;
       right: 0;
-      bottom: env(safe-area-inset-bottom);
-      z-index: 20;
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      z-index: 40 !important;
       pointer-events: none;
       padding: 10px;
       box-sizing: border-box;
     }
 
-    #languageBar,
-    #controlBar {
+    #languageBar {
       display: flex;
       justify-content: center;
       gap: 7px;
@@ -125,7 +152,7 @@
       padding: 8px 12px;
       font-size: 13px;
       background: rgba(20, 80, 45, 0.78);
-      border: 1px solid rgba(255,255,255,0.25);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       backdrop-filter: blur(8px);
     }
 
@@ -141,9 +168,9 @@
       margin: 0 auto;
       border-radius: 18px;
       overflow: hidden;
-      background: linear-gradient(180deg, rgba(10, 72, 42, 0.66), rgba(5, 32, 23, 0.74));
+      background: linear-gradient(180deg, rgba(10, 72, 42, 0.72), rgba(5, 32, 23, 0.80));
       border: 1px solid rgba(210, 255, 220, 0.38);
-      box-shadow: 0 10px 32px rgba(0,0,0,0.38);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.38);
       backdrop-filter: blur(8px);
       color: white;
       pointer-events: auto;
@@ -158,7 +185,7 @@
       padding: 12px 16px 8px;
       font-size: 16px;
       font-weight: 800;
-      background: linear-gradient(180deg, rgba(5,30,18,0.92), rgba(5,30,18,0.50), transparent);
+      background: linear-gradient(180deg, rgba(5, 30, 18, 0.92), rgba(5, 30, 18, 0.50), transparent);
       z-index: 2;
       letter-spacing: 0.04em;
     }
@@ -174,7 +201,7 @@
       padding: 0 18px 28px;
       font-size: 15px;
       line-height: 1.9;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.65);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
       transform: translateY(0);
       animation: scrollText 70s linear infinite;
     }
@@ -187,38 +214,46 @@
       0% {
         transform: translateY(0);
       }
+
       15% {
         transform: translateY(0);
       }
+
       100% {
         transform: translateY(-100%);
       }
     }
 
     #controlBar {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
       margin-top: 8px;
+      pointer-events: auto;
+      flex-wrap: wrap;
     }
 
     #controlBar button {
       padding: 8px 12px;
       font-size: 13px;
-      background: rgba(0,0,0,0.48);
-      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(0, 0, 0, 0.48);
+      border: 1px solid rgba(255, 255, 255, 0.25);
     }
 
     #debug {
       position: fixed;
       top: calc(58px + env(safe-area-inset-top));
       left: 10px;
-      z-index: 19;
+      z-index: 50;
       color: #d8ffd8;
       font-size: 11px;
-      background: rgba(0,0,0,0.44);
+      background: rgba(0, 0, 0, 0.44);
       padding: 6px 8px;
       border-radius: 8px;
       display: none;
-      max-width: 70vw;
+      max-width: 80vw;
       white-space: pre-line;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -272,19 +307,20 @@
   <audio id="voice-zh" src="./assets/audio/unfelled_forest_zh.mp3" preload="auto"></audio>
   <audio id="voice-ko" src="./assets/audio/unfelled_forest_ko.mp3" preload="auto"></audio>
 
-<a-scene
-  embedded
-  background="color: transparent"
-  renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true; colorManagement: true; sortObjects: true;"
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: false"
-  arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
->
+  <a-scene
+    embedded
+    renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: true"
+    arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
+  >
     <a-assets>
       <a-asset-item id="forestCharacter" src="./assets/models/unfelled_forest_character.glb"></a-asset-item>
     </a-assets>
 
+    <!-- 標準HIROマーカー -->
     <a-marker id="marker" preset="hiro" smooth="true" smoothCount="8" smoothTolerance="0.01" smoothThreshold="3">
+      <!-- キャラクター全体 -->
       <a-entity id="characterRoot" position="0 0 0">
         <a-entity
           id="characterBody"
@@ -294,6 +330,7 @@
           scale="0.72 0.72 0.72">
         </a-entity>
 
+        <!-- 簡易口パク用パーツ。位置はモデルに合わせて調整可能 -->
         <a-entity
           id="fakeMouth"
           position="0 1.05 -0.43"
@@ -304,6 +341,7 @@
         </a-entity>
       </a-entity>
 
+      <!-- 森の光エフェクト -->
       <a-entity
         position="0 1.55 0"
         geometry="primitive: sphere; radius: 0.08"
@@ -474,12 +512,14 @@ This forest is a promise to the future.`
     const captionTitle = document.getElementById("captionTitle");
     const captionText = document.getElementById("captionText");
     const captionPlate = document.getElementById("captionPlate");
+
     const pauseBtn = document.getElementById("pauseBtn");
     const restartBtn = document.getElementById("restartBtn");
     const debugBtn = document.getElementById("debugBtn");
     const debug = document.getElementById("debug");
     const marker = document.getElementById("marker");
     const voiceBtn = document.getElementById("voiceBtn");
+
     const characterRoot = document.getElementById("characterRoot");
     const characterBody = document.getElementById("characterBody");
     const fakeMouth = document.getElementById("fakeMouth");
@@ -495,6 +535,7 @@ This forest is a promise to the future.`
     let paused = false;
     let debugVisible = false;
     let markerVisible = false;
+
     let currentVoice = null;
     let speaking = false;
     let animationTimer = null;
@@ -551,16 +592,19 @@ This forest is a promise to the future.`
       const now = performance.now();
       const t = (now - startTime) / 1000;
 
+      // ゆっくり上下に揺れる
       const bodyY = Math.sin(t * 1.2) * 0.025;
       if (characterRoot) {
         characterRoot.setAttribute("position", `0 ${bodyY.toFixed(3)} 0`);
       }
 
+      // 軽いうなずき
       const nod = Math.sin(t * 1.4) * 2.0;
       if (characterBody) {
         characterBody.setAttribute("rotation", `${nod.toFixed(2)} 180 0`);
       }
 
+      // 口パク風アニメーション
       const mouthOpen =
         0.18 +
         Math.abs(Math.sin(t * 9.0)) * 0.45 +
@@ -598,10 +642,13 @@ This forest is a promise to the future.`
       });
 
       restartScroll();
+      updateDebug();
     }
 
     document.querySelectorAll(".langBtn").forEach(btn => {
-      btn.addEventListener("click", () => setLanguage(btn.dataset.lang));
+      btn.addEventListener("click", () => {
+        setLanguage(btn.dataset.lang);
+      });
     });
 
     voiceBtn.addEventListener("click", async () => {
@@ -646,11 +693,14 @@ This forest is a promise to the future.`
       pauseBtn.textContent = paused ? "再開" : "一時停止";
     });
 
-    restartBtn.addEventListener("click", restartScroll);
+    restartBtn.addEventListener("click", () => {
+      restartScroll();
+    });
 
     debugBtn.addEventListener("click", () => {
       debugVisible = !debugVisible;
       debug.style.display = debugVisible ? "block" : "none";
+      updateDebug();
     });
 
     marker.addEventListener("markerFound", () => {
@@ -664,12 +714,24 @@ This forest is a promise to the future.`
     });
 
     function updateDebug() {
+      const video = document.querySelector("video") || document.getElementById("arjs-video");
+
+      let videoInfo = "video: not found";
+      if (video) {
+        videoInfo =
+          "video: found\n" +
+          "videoWidth: " + video.videoWidth + "\n" +
+          "videoHeight: " + video.videoHeight + "\n" +
+          "readyState: " + video.readyState;
+      }
+
       debug.textContent =
         "markerVisible: " + markerVisible + "\n" +
         "language: " + currentLang + "\n" +
         "model: assets/models/unfelled_forest_character.glb\n" +
         "mode: marker / HIRO\n" +
-        "speaking: " + speaking;
+        "speaking: " + speaking + "\n" +
+        videoInfo;
     }
 
     setInterval(updateDebug, 1000);
