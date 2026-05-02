@@ -18,12 +18,17 @@
       width: 100%;
       height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
-      background: #000;
+      background: transparent !important;
+    }
+
+    body {
+      background: transparent !important;
     }
 
     /*
-      iPhone Safari / Android Chrome 用
-      AR.js のカメラ映像を canvas の下に正しく表示する設定
+      iPhone SafariでA-Frameの青背景が出る場合への対策。
+      AR.jsのカメラvideoを背面に置き、
+      A-Frame canvasは透明にします。
     */
     video,
     #arjs-video {
@@ -34,15 +39,14 @@
       height: 100vh !important;
       object-fit: cover !important;
       z-index: 0 !important;
-      opacity: 1 !important;
       display: block !important;
+      opacity: 1 !important;
       background: transparent !important;
     }
 
     a-scene {
       position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
+      inset: 0 !important;
       width: 100vw !important;
       height: 100vh !important;
       background: transparent !important;
@@ -52,12 +56,12 @@
     canvas,
     canvas.a-canvas {
       position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
+      inset: 0 !important;
       width: 100vw !important;
       height: 100vh !important;
       background: transparent !important;
       z-index: 1 !important;
+      pointer-events: none !important;
     }
 
     #startOverlay {
@@ -65,8 +69,8 @@
       inset: 0;
       z-index: 9999 !important;
       background:
-        radial-gradient(circle at center top, rgba(90, 160, 100, 0.35), transparent 45%),
-        linear-gradient(180deg, rgba(4, 22, 12, 0.96), rgba(0, 0, 0, 0.96));
+        radial-gradient(circle at center top, rgba(90,160,100,0.35), transparent 45%),
+        linear-gradient(180deg, rgba(4,22,12,0.96), rgba(0,0,0,0.96));
       color: white;
       display: flex;
       align-items: center;
@@ -80,10 +84,10 @@
       max-width: 460px;
       padding: 22px;
       border-radius: 22px;
-      background: rgba(255, 255, 255, 0.10);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.25);
       backdrop-filter: blur(10px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
     }
 
     #startCard h1 {
@@ -107,7 +111,7 @@
       font-weight: 700;
       color: white;
       background: linear-gradient(135deg, #2fa36b, #75b843);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.28);
       cursor: pointer;
     }
 
@@ -123,7 +127,7 @@
       line-height: 1.5;
       padding: 8px 12px;
       border-radius: 14px;
-      background: rgba(0, 0, 0, 0.42);
+      background: rgba(0,0,0,0.42);
       backdrop-filter: blur(8px);
       pointer-events: none;
     }
@@ -132,7 +136,7 @@
       position: fixed;
       left: 0;
       right: 0;
-      bottom: calc(12px + env(safe-area-inset-bottom));
+      bottom: calc(10px + env(safe-area-inset-bottom));
       z-index: 40 !important;
       pointer-events: none;
       padding: 10px;
@@ -152,7 +156,7 @@
       padding: 8px 12px;
       font-size: 13px;
       background: rgba(20, 80, 45, 0.78);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255,255,255,0.25);
       backdrop-filter: blur(8px);
     }
 
@@ -170,7 +174,7 @@
       overflow: hidden;
       background: linear-gradient(180deg, rgba(10, 72, 42, 0.72), rgba(5, 32, 23, 0.80));
       border: 1px solid rgba(210, 255, 220, 0.38);
-      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.38);
+      box-shadow: 0 10px 32px rgba(0,0,0,0.38);
       backdrop-filter: blur(8px);
       color: white;
       pointer-events: auto;
@@ -185,7 +189,7 @@
       padding: 12px 16px 8px;
       font-size: 16px;
       font-weight: 800;
-      background: linear-gradient(180deg, rgba(5, 30, 18, 0.92), rgba(5, 30, 18, 0.50), transparent);
+      background: linear-gradient(180deg, rgba(5,30,18,0.92), rgba(5,30,18,0.50), transparent);
       z-index: 2;
       letter-spacing: 0.04em;
     }
@@ -201,7 +205,7 @@
       padding: 0 18px 28px;
       font-size: 15px;
       line-height: 1.9;
-      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+      text-shadow: 0 2px 8px rgba(0,0,0,0.65);
       transform: translateY(0);
       animation: scrollText 70s linear infinite;
     }
@@ -236,22 +240,22 @@
     #controlBar button {
       padding: 8px 12px;
       font-size: 13px;
-      background: rgba(0, 0, 0, 0.48);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(0,0,0,0.48);
+      border: 1px solid rgba(255,255,255,0.25);
     }
 
     #debug {
       position: fixed;
       top: calc(58px + env(safe-area-inset-top));
       left: 10px;
-      z-index: 50;
+      z-index: 50 !important;
       color: #d8ffd8;
       font-size: 11px;
-      background: rgba(0, 0, 0, 0.44);
+      background: rgba(0,0,0,0.44);
       padding: 6px 8px;
       border-radius: 8px;
       display: none;
-      max-width: 80vw;
+      max-width: 82vw;
       white-space: pre-line;
       pointer-events: none;
     }
@@ -301,7 +305,7 @@
     </div>
   </div>
 
-  <!-- 音声ファイル。未配置でもARと字幕は動きます -->
+  <!-- 音声ファイル。assets/audio に配置してください -->
   <audio id="voice-ja" src="./assets/audio/unfelled_forest_ja.mp3" preload="auto"></audio>
   <audio id="voice-en" src="./assets/audio/unfelled_forest_en.mp3" preload="auto"></audio>
   <audio id="voice-zh" src="./assets/audio/unfelled_forest_zh.mp3" preload="auto"></audio>
@@ -309,7 +313,8 @@
 
   <a-scene
     embedded
-    renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
+    renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true; colorManagement: true;"
+    background="transparent: true"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: true"
     arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
@@ -318,50 +323,57 @@
       <a-asset-item id="forestCharacter" src="./assets/models/unfelled_forest_character.glb"></a-asset-item>
     </a-assets>
 
-    <!-- 標準HIROマーカー -->
-    <a-marker id="marker" preset="hiro" smooth="true" smoothCount="8" smoothTolerance="0.01" smoothThreshold="3">
-      <!-- キャラクター全体 -->
+    <a-marker
+      id="marker"
+      preset="hiro"
+      smooth="true"
+      smoothCount="8"
+      smoothTolerance="0.01"
+      smoothThreshold="3"
+    >
+      <!-- キャラクター全体。上下揺れ用 -->
       <a-entity id="characterRoot" position="0 0 0">
+        <!-- GLBモデル本体。うなずき用 -->
         <a-entity
           id="characterBody"
           gltf-model="#forestCharacter"
           position="0 0 0"
           rotation="0 180 0"
-          scale="0.72 0.72 0.72">
-        </a-entity>
+          scale="0.72 0.72 0.72"
+        ></a-entity>
 
-        <!-- 簡易口パク用パーツ。位置はモデルに合わせて調整可能 -->
+        <!-- 簡易口パクパーツ。位置はモデルに合わせて調整してください -->
         <a-entity
           id="fakeMouth"
           position="0 1.05 -0.43"
           geometry="primitive: circle; radius: 0.055"
           material="color: #2a1512; opacity: 0.85; transparent: true; side: double"
           scale="1 0.25 1"
-          visible="false">
-        </a-entity>
+          visible="false"
+        ></a-entity>
       </a-entity>
 
-      <!-- 森の光エフェクト -->
+      <!-- 森の光のような簡易エフェクト -->
       <a-entity
         position="0 1.55 0"
         geometry="primitive: sphere; radius: 0.08"
         material="color: #b9ff9f; opacity: 0.68; transparent: true"
-        animation="property: position; dir: alternate; dur: 1800; loop: true; easing: easeInOutSine; to: 0 1.78 0">
-      </a-entity>
+        animation="property: position; dir: alternate; dur: 1800; loop: true; easing: easeInOutSine; to: 0 1.78 0"
+      ></a-entity>
 
       <a-entity
         position="-0.45 1.25 0.18"
         geometry="primitive: sphere; radius: 0.035"
         material="color: #d7ffc8; opacity: 0.45; transparent: true"
-        animation="property: position; dir: alternate; dur: 2300; loop: true; easing: easeInOutSine; to: -0.40 1.50 0.18">
-      </a-entity>
+        animation="property: position; dir: alternate; dur: 2300; loop: true; easing: easeInOutSine; to: -0.40 1.50 0.18"
+      ></a-entity>
 
       <a-entity
         position="0.42 1.12 -0.12"
         geometry="primitive: sphere; radius: 0.045"
         material="color: #d7ffc8; opacity: 0.40; transparent: true"
-        animation="property: position; dir: alternate; dur: 2600; loop: true; easing: easeInOutSine; to: 0.48 1.42 -0.12">
-      </a-entity>
+        animation="property: position; dir: alternate; dur: 2600; loop: true; easing: easeInOutSine; to: 0.48 1.42 -0.12"
+      ></a-entity>
     </a-marker>
 
     <a-entity camera></a-entity>
@@ -373,33 +385,54 @@
         title: "長井市 不伐の森条例",
         body:
 `こんにちは。
+
 ぼくは、不伐の森の精霊です。
 
+
 長井市には、森を未来へ残すための
+
 「不伐の森条例」があります。
 
+
 この条例は、
+
 長井市がいつまでも緑豊かなまちであることを願い、
+
 森を永久に伐採せず、
+
 市民みんなで育て、守り、
+
 次の世代へ受け継いでいくための約束です。
 
+
 不伐の森は、
+
 ただ木を残すだけの場所ではありません。
 
+
 人と自然がどう向き合うのか。
+
 水、土、森、命をどう守るのか。
+
 そのことを考えるための
+
 長井市の大切なシンボルです。
 
+
 この森は、
+
 今を生きる人だけのものではありません。
 
+
 未来の子どもたちへ手渡す、
+
 長井市の宝物です。
 
+
 どうか、この森の声に
+
 耳をすませてみてください。
+
 
 この森は、未来への約束。`
       },
@@ -408,35 +441,57 @@
         title: "Nagai City’s Unfelled Forest Ordinance",
         body:
 `Hello.
+
 I am the spirit of the Unfelled Forest.
 
+
 In Nagai City, there is an ordinance called
+
 the “Unfelled Forest Ordinance.”
 
+
 It is a promise to protect this forest forever,
+
 without cutting it down,
+
 so that Nagai City will remain
+
 a green and beautiful place.
 
+
 This forest is cared for by the people of Nagai
+
 and passed on to future generations.
 
+
 The Unfelled Forest is not only a place
+
 where trees remain.
 
+
 It is a symbol that asks us
+
 how people should live together with nature,
+
 and how we should protect water, soil,
+
 forests, and life.
 
+
 This forest does not belong only
+
 to the people living today.
 
+
 It is a treasure to be handed down
+
 to the children of the future.
 
+
 Please listen carefully
+
 to the voice of the forest.
+
 
 This forest is a promise to the future.`
       },
@@ -445,30 +500,48 @@ This forest is a promise to the future.`
         title: "长井市“不伐之森”条例",
         body:
 `你好。
+
 我是“不伐之森”的精灵。
 
+
 在长井市，有一项名为
+
 “不伐之森条例”的规定。
 
+
 这是一项为了让长井市
+
 永远保持绿色与美丽，
+
 不砍伐森林，
+
 由市民共同守护、培育，
+
 并传承给未来世代的约定。
 
+
 “不伐之森”
+
 并不只是保留树木的地方。
 
+
 它象征着人类应该如何与自然共生，
+
 如何保护水、土壤、森林和生命。
 
+
 这片森林
+
 并不只属于现在的人们。
+
 
 它是长井市要交给未来孩子们的宝物。
 
+
 请静静聆听
+
 森林的声音。
+
 
 这片森林，是面向未来的约定。`
       },
@@ -477,33 +550,54 @@ This forest is a promise to the future.`
         title: "나가이시 불벌의 숲 조례",
         body:
 `안녕하세요.
+
 저는 불벌의 숲의 정령입니다.
 
+
 나가이시에는
+
 “불벌의 숲 조례”가 있습니다.
 
+
 이 조례는
+
 나가이시가 언제까지나 푸른 도시로 남기를 바라며,
+
 숲을 영원히 베지 않고,
+
 시민들이 함께 가꾸고 지켜
+
 미래 세대에게 물려주기 위한 약속입니다.
 
+
 불벌의 숲은
+
 단순히 나무를 남겨 두는 곳이 아닙니다.
 
+
 사람과 자연이 어떻게 함께 살아갈 것인지,
+
 물과 흙, 숲과 생명을 어떻게 지킬 것인지
+
 생각하게 해 주는
+
 나가이시의 소중한 상징입니다.
 
+
 이 숲은
+
 오늘을 사는 사람들만의 것이 아닙니다.
 
+
 미래의 아이들에게 전해 줄
+
 나가이시의 보물입니다.
 
+
 잠시 귀를 기울여
+
 숲의 목소리를 들어 보세요.
+
 
 이 숲은 미래를 향한 약속입니다.`
       }
@@ -512,7 +606,6 @@ This forest is a promise to the future.`
     const captionTitle = document.getElementById("captionTitle");
     const captionText = document.getElementById("captionText");
     const captionPlate = document.getElementById("captionPlate");
-
     const pauseBtn = document.getElementById("pauseBtn");
     const restartBtn = document.getElementById("restartBtn");
     const debugBtn = document.getElementById("debugBtn");
@@ -592,7 +685,7 @@ This forest is a promise to the future.`
       const now = performance.now();
       const t = (now - startTime) / 1000;
 
-      // ゆっくり上下に揺れる
+      // ゆっくりした体の上下ゆれ
       const bodyY = Math.sin(t * 1.2) * 0.025;
       if (characterRoot) {
         characterRoot.setAttribute("position", `0 ${bodyY.toFixed(3)} 0`);
@@ -646,9 +739,7 @@ This forest is a promise to the future.`
     }
 
     document.querySelectorAll(".langBtn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        setLanguage(btn.dataset.lang);
-      });
+      btn.addEventListener("click", () => setLanguage(btn.dataset.lang));
     });
 
     voiceBtn.addEventListener("click", async () => {
@@ -693,9 +784,7 @@ This forest is a promise to the future.`
       pauseBtn.textContent = paused ? "再開" : "一時停止";
     });
 
-    restartBtn.addEventListener("click", () => {
-      restartScroll();
-    });
+    restartBtn.addEventListener("click", restartScroll);
 
     debugBtn.addEventListener("click", () => {
       debugVisible = !debugVisible;
@@ -714,31 +803,89 @@ This forest is a promise to the future.`
     });
 
     function updateDebug() {
-      const video = document.querySelector("video") || document.getElementById("arjs-video");
-
-      let videoInfo = "video: not found";
-      if (video) {
-        videoInfo =
-          "video: found\n" +
-          "videoWidth: " + video.videoWidth + "\n" +
-          "videoHeight: " + video.videoHeight + "\n" +
-          "readyState: " + video.readyState;
-      }
+      const video = document.querySelector("video") || document.querySelector("#arjs-video");
+      const canvas = document.querySelector("canvas");
+      const scene = document.querySelector("a-scene");
 
       debug.textContent =
         "markerVisible: " + markerVisible + "\n" +
         "language: " + currentLang + "\n" +
-        "model: assets/models/unfelled_forest_character.glb\n" +
-        "mode: marker / HIRO\n" +
         "speaking: " + speaking + "\n" +
-        videoInfo;
+        "video: " + (video ? "found" : "not found") + "\n" +
+        "canvas: " + (canvas ? "found" : "not found") + "\n" +
+        "sceneLoaded: " + (scene && scene.hasLoaded ? "yes" : "no") + "\n" +
+        "model: assets/models/unfelled_forest_character.glb\n" +
+        "mode: marker / HIRO";
     }
 
-    setInterval(updateDebug, 1000);
+    /*
+      A-Frameの青背景を透明化する補正。
+      iPhone Safariで特に重要です。
+    */
+    function forceTransparentARCanvas() {
+      const sceneEl = document.querySelector("a-scene");
+
+      if (!sceneEl) return;
+
+      function applyFix(label) {
+        try {
+          if (sceneEl.renderer) {
+            sceneEl.renderer.setClearColor(0x000000, 0);
+            sceneEl.renderer.domElement.style.background = "transparent";
+          }
+
+          const canvas = sceneEl.canvas || document.querySelector("canvas");
+          if (canvas) {
+            canvas.style.background = "transparent";
+            canvas.style.zIndex = "1";
+          }
+
+          const video = document.querySelector("video") || document.querySelector("#arjs-video");
+          if (video) {
+            video.style.position = "fixed";
+            video.style.top = "0";
+            video.style.left = "0";
+            video.style.width = "100vw";
+            video.style.height = "100vh";
+            video.style.objectFit = "cover";
+            video.style.zIndex = "0";
+            video.style.display = "block";
+            video.style.opacity = "1";
+          }
+
+          console.log("[AR_FIX] transparent canvas applied:", label);
+          updateDebug();
+        } catch (e) {
+          console.log("[AR_FIX_ERROR]", label, e);
+        }
+      }
+
+      sceneEl.addEventListener("loaded", () => {
+        applyFix("scene loaded");
+      });
+
+      setTimeout(() => applyFix("timeout 500"), 500);
+      setTimeout(() => applyFix("timeout 1500"), 1500);
+      setTimeout(() => applyFix("timeout 3000"), 3000);
+    }
+
+    forceTransparentARCanvas();
+
+    setInterval(() => {
+      updateDebug();
+    }, 1000);
 
     document.getElementById("startBtn").addEventListener("click", () => {
       document.getElementById("startOverlay").style.display = "none";
       setLanguage("ja");
+
+      /*
+        iPhone Safariで、ユーザー操作後にカメラvideoが生成される場合があるため、
+        開始ボタン後にも透明化処理を再実行します。
+      */
+      setTimeout(() => {
+        forceTransparentARCanvas();
+      }, 500);
     });
 
     setLanguage("ja");
