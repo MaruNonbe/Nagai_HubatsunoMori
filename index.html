@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
   <title>長井市 不伐の森ARガイド</title>
 
+  <!-- A-Frame + AR.js -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.7/aframe/build/aframe-ar.min.js"></script>
 
@@ -14,6 +15,23 @@
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
       background: #000;
+    }
+
+    video {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      object-fit: cover !important;
+      z-index: 0 !important;
+    }
+
+    canvas.a-canvas {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      z-index: 1 !important;
     }
 
     #startOverlay {
@@ -93,7 +111,8 @@
       box-sizing: border-box;
     }
 
-    #languageBar, #controlBar {
+    #languageBar,
+    #controlBar {
       display: flex;
       justify-content: center;
       gap: 7px;
@@ -156,8 +175,8 @@
       font-size: 15px;
       line-height: 1.9;
       text-shadow: 0 2px 8px rgba(0,0,0,0.65);
-      transform: translateY(100%);
-      animation: scrollText 58s linear infinite;
+      transform: translateY(0);
+      animation: scrollText 70s linear infinite;
     }
 
     #captionPlate.paused #captionText {
@@ -165,8 +184,15 @@
     }
 
     @keyframes scrollText {
-      0% { transform: translateY(100%); }
-      100% { transform: translateY(-115%); }
+      0% {
+        transform: translateY(0);
+      }
+      15% {
+        transform: translateY(0);
+      }
+      100% {
+        transform: translateY(-100%);
+      }
     }
 
     #controlBar {
@@ -240,6 +266,7 @@
     </div>
   </div>
 
+  <!-- 音声ファイル。未配置でもARと字幕は動きます -->
   <audio id="voice-ja" src="./assets/audio/unfelled_forest_ja.mp3" preload="auto"></audio>
   <audio id="voice-en" src="./assets/audio/unfelled_forest_en.mp3" preload="auto"></audio>
   <audio id="voice-zh" src="./assets/audio/unfelled_forest_zh.mp3" preload="auto"></audio>
@@ -250,7 +277,7 @@
     renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: true"
-    arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false; trackingMethod: best;"
+    arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
   >
     <a-assets>
       <a-asset-item id="forestCharacter" src="./assets/models/unfelled_forest_character.glb"></a-asset-item>
@@ -337,6 +364,7 @@
 
 この森は、未来への約束。`
       },
+
       en: {
         title: "Nagai City’s Unfelled Forest Ordinance",
         body:
@@ -373,6 +401,7 @@ to the voice of the forest.
 
 This forest is a promise to the future.`
       },
+
       zh: {
         title: "长井市“不伐之森”条例",
         body:
@@ -404,6 +433,7 @@ This forest is a promise to the future.`
 
 这片森林，是面向未来的约定。`
       },
+
       ko: {
         title: "나가이시 불벌의 숲 조례",
         body:
@@ -481,8 +511,13 @@ This forest is a promise to the future.`
       speaking = true;
       startTime = performance.now();
 
-      if (fakeMouth) fakeMouth.setAttribute("visible", "true");
-      if (animationTimer) cancelAnimationFrame(animationTimer);
+      if (fakeMouth) {
+        fakeMouth.setAttribute("visible", "true");
+      }
+
+      if (animationTimer) {
+        cancelAnimationFrame(animationTimer);
+      }
 
       animateCharacter();
     }
@@ -500,8 +535,13 @@ This forest is a promise to the future.`
         fakeMouth.setAttribute("visible", "false");
       }
 
-      if (characterRoot) characterRoot.setAttribute("position", "0 0 0");
-      if (characterBody) characterBody.setAttribute("rotation", "0 180 0");
+      if (characterRoot) {
+        characterRoot.setAttribute("position", "0 0 0");
+      }
+
+      if (characterBody) {
+        characterBody.setAttribute("rotation", "0 180 0");
+      }
     }
 
     function animateCharacter() {
@@ -511,17 +551,23 @@ This forest is a promise to the future.`
       const t = (now - startTime) / 1000;
 
       const bodyY = Math.sin(t * 1.2) * 0.025;
-      if (characterRoot) characterRoot.setAttribute("position", `0 ${bodyY.toFixed(3)} 0`);
+      if (characterRoot) {
+        characterRoot.setAttribute("position", `0 ${bodyY.toFixed(3)} 0`);
+      }
 
       const nod = Math.sin(t * 1.4) * 2.0;
-      if (characterBody) characterBody.setAttribute("rotation", `${nod.toFixed(2)} 180 0`);
+      if (characterBody) {
+        characterBody.setAttribute("rotation", `${nod.toFixed(2)} 180 0`);
+      }
 
       const mouthOpen =
         0.18 +
         Math.abs(Math.sin(t * 9.0)) * 0.45 +
         Math.abs(Math.sin(t * 15.0)) * 0.15;
 
-      if (fakeMouth) fakeMouth.setAttribute("scale", `1 ${mouthOpen.toFixed(2)} 1`);
+      if (fakeMouth) {
+        fakeMouth.setAttribute("scale", `1 ${mouthOpen.toFixed(2)} 1`);
+      }
 
       animationTimer = requestAnimationFrame(animateCharacter);
     }
@@ -538,7 +584,10 @@ This forest is a promise to the future.`
 
       stopAllVoices();
       stopSpeakingAnimation();
-      voiceBtn.textContent = "音声ガイド";
+
+      if (voiceBtn) {
+        voiceBtn.textContent = "音声ガイド";
+      }
 
       captionTitle.textContent = texts[lang].title;
       captionText.textContent = texts[lang].body;
