@@ -883,6 +883,13 @@ This forest is a promise to the future.`
       const videos = document.querySelectorAll("video");
       const v = videos[0];
       const canvas = document.querySelector("canvas");
+      const body = document.getElementById("characterBody");
+      const root = document.getElementById("characterRoot");
+
+      const bodyRot = body ? body.getAttribute("rotation") : null;
+      const rootRot = root ? root.getAttribute("rotation") : null;
+      const bodyScale = body ? body.getAttribute("scale") : null;
+      const rootScale = root ? root.getAttribute("scale") : null;
 
       debug.textContent =
         "markerVisible: " + markerVisible + "\n" +
@@ -897,6 +904,10 @@ This forest is a promise to the future.`
         "model: assets/models/unfelled_forest_character.glb\n" +
         "mode: marker / HIRO\n" +
         "protocol: " + location.protocol;
+        "bodyRot: " + JSON.stringify(bodyRot) + "\n" +
+        "rootRot: " + JSON.stringify(rootRot) + "\n" +
+        "bodyScale: " + JSON.stringify(bodyScale) + "\n" +
+        "rootScale: " + JSON.stringify(rootScale) + "\n" +
     }
 
     setInterval(updateDebug, 1000);
