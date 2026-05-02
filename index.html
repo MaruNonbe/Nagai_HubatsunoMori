@@ -281,10 +281,10 @@
     </div>
   </div>
 
-  <audio id="voice-ja" src="./assets/audio/unfelled_forest_ja.mp3" preload="auto"></audio>
-  <audio id="voice-en" src="./assets/audio/unfelled_forest_en.mp3" preload="auto"></audio>
-  <audio id="voice-zh" src="./assets/audio/unfelled_forest_zh.mp3" preload="auto"></audio>
-  <audio id="voice-ko" src="./assets/audio/unfelled_forest_ko.mp3" preload="auto"></audio>
+  <audio id="voice-ja" src="./assets/audio/unfelled_forest_ja.wav" preload="auto"></audio>
+  <audio id="voice-en" src="./assets/audio/unfelled_forest_en.wav" preload="auto"></audio>
+  <audio id="voice-zh" src="./assets/audio/unfelled_forest_zh.wav" preload="auto"></audio>
+  <audio id="voice-ko" src="./assets/audio/unfelled_forest_ko.wav" preload="auto"></audio>
 
   <a-scene
     embedded
@@ -362,16 +362,16 @@
     });
 
     /*
-      モデルの正面向き調整用です。
+      机などに水平に置いたHiroマーカー上で立つ向きです。
 
       まずは y: 0 で試してください。
       背中が見える場合は y: 180
       横向きの場合は y: 90 または y: 270
     */
     const MODEL_BASE_ROTATION = {
-      x: -90,
+      x: 0,
       y: 180,
-      z: 180
+      z: 0
     };
 
     const texts = {
@@ -386,16 +386,27 @@
 
 この条例は、
 長井市がいつまでも緑豊かなまちであることを願い、
-森を永久に伐採せず、
-市民みんなで育て、守り、
+不伐の森を市民の永久財産として保存し、
+市民参加の育林によって巨木の森へ育て、
 次の世代へ受け継いでいくための約束です。
+
+この森では、樹木の伐採や
+植物・鉱物の採取、
+決められた場所以外での火気使用が
+制限されています。
+
+一方で、森を健やかに育てるために必要な
+下刈り、除伐、間伐、枝打ち、
+枯れた木や被害木の除去、
+学術調査や病害虫の駆除などは
+例外として認められています。
 
 不伐の森は、
 ただ木を残すだけの場所ではありません。
 
 人と自然がどう向き合うのか。
 水、土、森、命をどう守るのか。
-そのことを考えるための
+そのことを考え、緑の大切さを広く伝えていく
 長井市の大切なシンボルです。
 
 この森は、
@@ -419,12 +430,20 @@ In Nagai City, there is an ordinance called
 the “Unfelled Forest Ordinance.”
 
 It is a promise to protect this forest forever,
-without cutting it down,
-so that Nagai City will remain
-a green and beautiful place.
+as a lasting treasure for the people,
+and to grow it into a forest of great trees
+through community-based forest care.
 
-This forest is cared for by the people of Nagai
-and passed on to future generations.
+In this forest, cutting trees,
+collecting plants or minerals,
+and using fire outside designated places
+are restricted.
+
+At the same time, necessary forest care is allowed,
+such as clearing undergrowth,
+selective thinning, pruning,
+removing dead or damaged trees,
+academic research, and pest control.
 
 The Unfelled Forest is not only a place
 where trees remain.
@@ -433,6 +452,9 @@ It is a symbol that asks us
 how people should live together with nature,
 and how we should protect water, soil,
 forests, and life.
+
+It is also a symbol that shares
+the importance of greenery with many people.
 
 This forest does not belong only
 to the people living today.
@@ -456,15 +478,28 @@ This forest is a promise to the future.`
 
 这是一项为了让长井市
 永远保持绿色与美丽，
-不砍伐森林，
-由市民共同守护、培育，
-并传承给未来世代的约定。
+把“不伐之森”作为市民永久的财产加以保存，
+并通过市民参与的育林，
+把它培育成巨木之森，
+传承给未来世代的约定。
+
+在这片森林里，
+伐採树木、采集植物和矿物，
+以及在指定场所以外使用火源
+都受到限制。
+
+另一方面，为了让森林健康成长，
+必要的割草、除伐、间伐、修枝，
+清除枯木和受害木，
+学术调查以及病虫害防治等
+作为例外是被允许的。
 
 “不伐之森”
 并不只是保留树木的地方。
 
 它象征着人类应该如何与自然共生，
-如何保护水、土壤、森林和生命。
+如何保护水、土壤、森林和生命，
+并把绿色的重要性传递给更多的人。
 
 这片森林
 并不只属于现在的人们。
@@ -487,16 +522,28 @@ This forest is a promise to the future.`
 
 이 조례는
 나가이시가 언제까지나 푸른 도시로 남기를 바라며,
-숲을 영원히 베지 않고,
-시민들이 함께 가꾸고 지켜
+불벌의 숲을 시민의 영구적인 재산으로 보존하고,
+시민 참여의 숲 가꾸기를 통해
+거목의 숲으로 키워
 미래 세대에게 물려주기 위한 약속입니다.
+
+이 숲에서는 나무를 베거나
+식물과 광물을 채취하는 일,
+정해진 장소가 아닌 곳에서 불을 사용하는 일이
+제한됩니다.
+
+한편 숲을 건강하게 기르기 위해 필요한
+풀베기, 솎아베기, 가지치기,
+고사목과 피해목의 제거,
+학술 조사와 병해충 방제 등은
+예외로 인정됩니다.
 
 불벌의 숲은
 단순히 나무를 남겨 두는 곳이 아닙니다.
 
 사람과 자연이 어떻게 함께 살아갈 것인지,
 물과 흙, 숲과 생명을 어떻게 지킬 것인지
-생각하게 해 주는
+생각하게 하고, 녹색의 소중함을 널리 전하는
 나가이시의 소중한 상징입니다.
 
 이 숲은
@@ -532,6 +579,13 @@ This forest is a promise to the future.`
       en: document.getElementById("voice-en"),
       zh: document.getElementById("voice-zh"),
       ko: document.getElementById("voice-ko")
+    };
+
+    const speechLangMap = {
+      ja: "ja-JP",
+      en: "en-US",
+      zh: "zh-CN",
+      ko: "ko-KR"
     };
 
     let currentLang = "ja";
@@ -619,6 +673,33 @@ This forest is a promise to the future.`
         audio.pause();
         audio.currentTime = 0;
       });
+
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    }
+
+    function speakWithBrowserVoice() {
+      if (!("speechSynthesis" in window)) {
+        alert("音声ファイルが未配置、または再生できません。assets/audio に wav/mp3 を入れてください。");
+        return false;
+      }
+
+      const utterance = new SpeechSynthesisUtterance(texts[currentLang].body);
+      utterance.lang = speechLangMap[currentLang] || "ja-JP";
+      utterance.rate = 0.92;
+      utterance.pitch = 1.0;
+
+      utterance.onend = () => {
+        voiceBtn.textContent = "音声ガイド";
+        stopSpeakingAnimation();
+      };
+
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+      voiceBtn.textContent = "音声停止";
+      startSpeakingAnimation();
+      return true;
     }
 
     function startSpeakingAnimation() {
@@ -747,7 +828,7 @@ This forest is a promise to the future.`
         };
       } catch (e) {
         console.log("Audio play error:", e);
-        alert("音声ファイルが未配置、または再生できません。assets/audio に mp3 を入れてください。");
+        speakWithBrowserVoice();
       }
     });
 
