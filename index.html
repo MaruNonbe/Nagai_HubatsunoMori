@@ -272,13 +272,14 @@
   <audio id="voice-zh" src="./assets/audio/unfelled_forest_zh.mp3" preload="auto"></audio>
   <audio id="voice-ko" src="./assets/audio/unfelled_forest_ko.mp3" preload="auto"></audio>
 
-  <a-scene
-    embedded
-    renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
-    vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: true"
-    arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
-  >
+<a-scene
+  embedded
+  background="color: transparent"
+  renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true; colorManagement: true; sortObjects: true;"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
+  arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
+>
     <a-assets>
       <a-asset-item id="forestCharacter" src="./assets/models/unfelled_forest_character.glb"></a-asset-item>
     </a-assets>
