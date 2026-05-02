@@ -5,16 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
   <title>長井市 不伐の森ARガイド</title>
 
-  <!-- A-Frame + AR.js -->
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.7/aframe/build/aframe-ar.min.js"></script>
 
   <style>
     html, body {
       margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
       background: #000;
@@ -29,13 +25,14 @@
       position: fixed !important;
       top: 0 !important;
       left: 0 !important;
+      min-width: 100vw !important;
+      min-height: 100vh !important;
       width: 100vw !important;
       height: 100vh !important;
       object-fit: cover !important;
       z-index: 0 !important;
       display: block !important;
       opacity: 1 !important;
-      background: #000 !important;
     }
 
     a-scene {
@@ -61,7 +58,7 @@
     #startOverlay {
       position: fixed;
       inset: 0;
-      z-index: 9999 !important;
+      z-index: 9999;
       background:
         radial-gradient(circle at center top, rgba(90,160,100,0.35), transparent 45%),
         linear-gradient(180deg, rgba(4,22,12,0.96), rgba(0,0,0,0.96));
@@ -112,7 +109,7 @@
       top: calc(10px + env(safe-area-inset-top));
       left: 10px;
       right: 10px;
-      z-index: 30 !important;
+      z-index: 30;
       color: white;
       text-align: center;
       font-size: 13px;
@@ -124,34 +121,19 @@
       pointer-events: none;
     }
 
-    #debug {
-      position: fixed;
-      top: calc(70px + env(safe-area-inset-top));
-      left: 10px;
-      z-index: 50 !important;
-      color: #d8ffd8;
-      font-size: 11px;
-      background: rgba(0,0,0,0.58);
-      padding: 8px 10px;
-      border-radius: 8px;
-      display: none;
-      max-width: 82vw;
-      white-space: pre-line;
-      line-height: 1.35;
-    }
-
     #ui {
       position: fixed;
       left: 0;
       right: 0;
       bottom: env(safe-area-inset-bottom);
-      z-index: 40 !important;
+      z-index: 40;
       pointer-events: none;
       padding: 10px;
       box-sizing: border-box;
     }
 
-    #languageBar {
+    #languageBar,
+    #controlBar {
       display: flex;
       justify-content: center;
       gap: 7px;
@@ -175,12 +157,12 @@
 
     #captionPlate {
       width: min(92vw, 560px);
-      height: 34vh;
-      min-height: 210px;
+      height: 28vh;
+      min-height: 180px;
       margin: 0 auto;
       border-radius: 18px;
       overflow: hidden;
-      background: linear-gradient(180deg, rgba(10, 72, 42, 0.68), rgba(5, 32, 23, 0.78));
+      background: linear-gradient(180deg, rgba(10, 72, 42, 0.66), rgba(5, 32, 23, 0.74));
       border: 1px solid rgba(210, 255, 220, 0.38);
       box-shadow: 0 10px 32px rgba(0,0,0,0.38);
       backdrop-filter: blur(8px);
@@ -229,12 +211,7 @@
     }
 
     #controlBar {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
       margin-top: 8px;
-      pointer-events: auto;
-      flex-wrap: wrap;
     }
 
     #controlBar button {
@@ -243,58 +220,22 @@
       background: rgba(0,0,0,0.48);
       border: 1px solid rgba(255,255,255,0.25);
     }
+
+    #debug {
+      position: fixed;
+      top: calc(58px + env(safe-area-inset-top));
+      left: 10px;
+      z-index: 60;
+      color: #d8ffd8;
+      font-size: 11px;
+      background: rgba(0,0,0,0.54);
+      padding: 6px 8px;
+      border-radius: 8px;
+      display: none;
+      max-width: 78vw;
+      white-space: pre-line;
+    }
   </style>
-
-  <script>
-    /*
-      A-Frame canvas の青背景をできるだけ透明にするための補助コンポーネント
-    */
-    AFRAME.registerComponent("force-transparent-canvas", {
-      init: function () {
-        const scene = this.el;
-
-        const apply = () => {
-          try {
-            if (scene.renderer) {
-              scene.renderer.setClearColor(0x000000, 0);
-              scene.object3D.background = null;
-            }
-
-            const canvas = scene.canvas || document.querySelector("canvas");
-            if (canvas) {
-              canvas.style.background = "transparent";
-              canvas.style.zIndex = "1";
-            }
-
-            const videos = document.querySelectorAll("video");
-            videos.forEach((video) => {
-              video.setAttribute("playsinline", "");
-              video.setAttribute("webkit-playsinline", "");
-              video.style.position = "fixed";
-              video.style.top = "0";
-              video.style.left = "0";
-              video.style.width = "100vw";
-              video.style.height = "100vh";
-              video.style.objectFit = "cover";
-              video.style.zIndex = "0";
-              video.style.display = "block";
-              video.style.opacity = "1";
-            });
-
-            console.log("[AR_FIX] transparent canvas applied");
-          } catch (e) {
-            console.log("[AR_FIX_ERROR]", e);
-          }
-        };
-
-        scene.addEventListener("loaded", apply);
-        scene.addEventListener("render-target-loaded", apply);
-        setTimeout(apply, 500);
-        setTimeout(apply, 1500);
-        setInterval(apply, 1000);
-      }
-    });
-  </script>
 </head>
 
 <body>
@@ -340,46 +281,45 @@
     </div>
   </div>
 
-  <!-- 音声ファイル。未配置でもAR表示と字幕表示は動きます -->
-  <audio id="voice-ja" src="./assets/audio/unfelled_forest_ja.mp3" preload="none"></audio>
-  <audio id="voice-en" src="./assets/audio/unfelled_forest_en.mp3" preload="none"></audio>
-  <audio id="voice-zh" src="./assets/audio/unfelled_forest_zh.mp3" preload="none"></audio>
-  <audio id="voice-ko" src="./assets/audio/unfelled_forest_ko.mp3" preload="none"></audio>
+  <audio id="voice-ja" src="./assets/audio/unfelled_forest_ja.mp3" preload="auto"></audio>
+  <audio id="voice-en" src="./assets/audio/unfelled_forest_en.mp3" preload="auto"></audio>
+  <audio id="voice-zh" src="./assets/audio/unfelled_forest_zh.mp3" preload="auto"></audio>
+  <audio id="voice-ko" src="./assets/audio/unfelled_forest_ko.mp3" preload="auto"></audio>
 
   <a-scene
     embedded
-    force-transparent-canvas
     renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true;"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: true"
     arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
   >
-    <!--
-      重要：
-      ここでは a-assets でGLBを先読みしません。
-      50MB級GLBを a-assets で待つと、sceneLoaded:no のまま止まることがあります。
-    -->
+    <a-marker id="marker" preset="hiro" smooth="true" smoothCount="8" smoothTolerance="0.01" smoothThreshold="3">
 
-    <a-marker
-      id="marker"
-      preset="hiro"
-      smooth="true"
-      smoothCount="8"
-      smoothTolerance="0.01"
-      smoothThreshold="3"
-    >
-      <a-entity id="characterRoot" position="0 0 0">
+      <!--
+        characterRoot:
+        位置・大きさ調整用です。
+        モデルが大きすぎる/小さすぎる場合は scale を調整します。
+      -->
+      <a-entity
+        id="characterRoot"
+        position="0 0.45 0"
+        rotation="0 0 0"
+        scale="0.65 0.65 0.65">
 
-        <!-- GLBキャラクター。a-assets経由ではなく url() で直接読む -->
-<a-entity
-  id="characterBody"
-  gltf-model="url(./assets/models/unfelled_forest_character.glb)"
-  position="0 0.8 0"
-  rotation="0 0 0"
-  scale="2.0 2.0 2.0">
-</a-entity>
+        <!--
+          characterBody:
+          GLB本体です。
+          向きは JavaScript の MODEL_BASE_ROTATION で管理します。
+        -->
+        <a-entity
+          id="characterBody"
+          gltf-model="url(./assets/models/unfelled_forest_character.glb?v=5)"
+          position="0 0 0"
+          rotation="0 0 0"
+          scale="1 1 1">
+        </a-entity>
 
-        <!-- 簡易口パク用の口パーツ -->
+        <!-- 簡易口パーツ -->
         <a-entity
           id="fakeMouth"
           position="0 1.05 -0.43"
@@ -417,224 +357,156 @@
   </a-scene>
 
   <script>
+    window.addEventListener("error", function (e) {
+      console.log("[JS_ERROR]", e.message);
+    });
+
+    /*
+      モデルの正面向き調整用です。
+
+      まずは y: 0 で試してください。
+      背中が見える場合は y: 180
+      横向きの場合は y: 90 または y: 270
+    */
+    const MODEL_BASE_ROTATION = {
+      x: 0,
+      y: 0,
+      z: 0
+    };
+
     const texts = {
       ja: {
         title: "長井市 不伐の森条例",
         body:
 `こんにちは。
-
 ぼくは、不伐の森の精霊です。
 
-
 長井市には、森を未来へ残すための
-
 「不伐の森条例」があります。
 
-
 この条例は、
-
 長井市がいつまでも緑豊かなまちであることを願い、
-
 森を永久に伐採せず、
-
 市民みんなで育て、守り、
-
 次の世代へ受け継いでいくための約束です。
 
-
 不伐の森は、
-
 ただ木を残すだけの場所ではありません。
 
-
 人と自然がどう向き合うのか。
-
 水、土、森、命をどう守るのか。
-
 そのことを考えるための
-
 長井市の大切なシンボルです。
 
-
 この森は、
-
 今を生きる人だけのものではありません。
 
-
 未来の子どもたちへ手渡す、
-
 長井市の宝物です。
 
-
 どうか、この森の声に
-
 耳をすませてみてください。
-
 
 この森は、未来への約束。`
       },
-
       en: {
         title: "Nagai City’s Unfelled Forest Ordinance",
         body:
 `Hello.
-
 I am the spirit of the Unfelled Forest.
 
-
 In Nagai City, there is an ordinance called
-
 the “Unfelled Forest Ordinance.”
 
-
 It is a promise to protect this forest forever,
-
 without cutting it down,
-
 so that Nagai City will remain
-
 a green and beautiful place.
 
-
 This forest is cared for by the people of Nagai
-
 and passed on to future generations.
 
-
 The Unfelled Forest is not only a place
-
 where trees remain.
 
-
 It is a symbol that asks us
-
 how people should live together with nature,
-
 and how we should protect water, soil,
-
 forests, and life.
 
-
 This forest does not belong only
-
 to the people living today.
 
-
 It is a treasure to be handed down
-
 to the children of the future.
 
-
 Please listen carefully
-
 to the voice of the forest.
-
 
 This forest is a promise to the future.`
       },
-
       zh: {
         title: "长井市“不伐之森”条例",
         body:
 `你好。
-
 我是“不伐之森”的精灵。
 
-
 在长井市，有一项名为
-
 “不伐之森条例”的规定。
 
-
 这是一项为了让长井市
-
 永远保持绿色与美丽，
-
 不砍伐森林，
-
 由市民共同守护、培育，
-
 并传承给未来世代的约定。
 
-
 “不伐之森”
-
 并不只是保留树木的地方。
 
-
 它象征着人类应该如何与自然共生，
-
 如何保护水、土壤、森林和生命。
 
-
 这片森林
-
 并不只属于现在的人们。
-
 
 它是长井市要交给未来孩子们的宝物。
 
-
 请静静聆听
-
 森林的声音。
-
 
 这片森林，是面向未来的约定。`
       },
-
       ko: {
         title: "나가이시 불벌의 숲 조례",
         body:
 `안녕하세요.
-
 저는 불벌의 숲의 정령입니다.
 
-
 나가이시에는
-
 “불벌의 숲 조례”가 있습니다.
 
-
 이 조례는
-
 나가이시가 언제까지나 푸른 도시로 남기를 바라며,
-
 숲을 영원히 베지 않고,
-
 시민들이 함께 가꾸고 지켜
-
 미래 세대에게 물려주기 위한 약속입니다.
 
-
 불벌의 숲은
-
 단순히 나무를 남겨 두는 곳이 아닙니다.
 
-
 사람과 자연이 어떻게 함께 살아갈 것인지,
-
 물과 흙, 숲과 생명을 어떻게 지킬 것인지
-
 생각하게 해 주는
-
 나가이시의 소중한 상징입니다.
 
-
 이 숲은
-
 오늘을 사는 사람들만의 것이 아닙니다.
 
-
 미래의 아이들에게 전해 줄
-
 나가이시의 보물입니다.
 
-
 잠시 귀를 기울여
-
 숲의 목소리를 들어 보세요.
-
 
 이 숲은 미래를 향한 약속입니다.`
       }
@@ -652,7 +524,8 @@ This forest is a promise to the future.`
     const characterRoot = document.getElementById("characterRoot");
     const characterBody = document.getElementById("characterBody");
     const fakeMouth = document.getElementById("fakeMouth");
-    const sceneEl = document.querySelector("a-scene");
+    const startBtn = document.getElementById("startBtn");
+    const startOverlay = document.getElementById("startOverlay");
 
     const voiceMap = {
       ja: document.getElementById("voice-ja"),
@@ -669,26 +542,76 @@ This forest is a promise to the future.`
     let speaking = false;
     let animationTimer = null;
     let startTime = 0;
-    let sceneLoaded = false;
+    let modelLoaded = false;
+    let modelError = "";
 
-    if (sceneEl) {
-      sceneEl.addEventListener("loaded", () => {
-        sceneLoaded = true;
-        console.log("[SCENE] loaded");
+    function getBaseRotationString() {
+      return `${MODEL_BASE_ROTATION.x} ${MODEL_BASE_ROTATION.y} ${MODEL_BASE_ROTATION.z}`;
+    }
+
+    function applyBaseModelRotation() {
+      if (!characterBody) return;
+      characterBody.setAttribute("rotation", getBaseRotationString());
+    }
+
+    if (characterBody) {
+      characterBody.addEventListener("model-loaded", () => {
+        modelLoaded = true;
+        modelError = "";
+        applyBaseModelRotation();
+        console.log("[MODEL] loaded");
+      });
+
+      characterBody.addEventListener("model-error", (e) => {
+        modelLoaded = false;
+        modelError = "model-error";
+        console.log("[MODEL] error", e);
       });
     }
 
-    if (marker) {
-      marker.addEventListener("markerFound", () => {
-        markerVisible = true;
-        updateDebug();
-      });
+    function forceTransparentARCanvas() {
+      const sceneEl = document.querySelector("a-scene");
+      if (!sceneEl) return;
 
-      marker.addEventListener("markerLost", () => {
-        markerVisible = false;
-        updateDebug();
-      });
+      const apply = () => {
+        try {
+          if (sceneEl.renderer) {
+            sceneEl.renderer.setClearColor(0x000000, 0);
+            sceneEl.object3D.background = null;
+          }
+
+          const canvas = sceneEl.canvas || document.querySelector("canvas");
+          if (canvas) {
+            canvas.style.background = "transparent";
+            canvas.style.zIndex = "1";
+          }
+
+          const videos = document.querySelectorAll("video");
+          videos.forEach((video) => {
+            video.setAttribute("playsinline", "");
+            video.setAttribute("webkit-playsinline", "");
+            video.style.position = "fixed";
+            video.style.top = "0";
+            video.style.left = "0";
+            video.style.width = "100vw";
+            video.style.height = "100vh";
+            video.style.objectFit = "cover";
+            video.style.zIndex = "0";
+            video.style.display = "block";
+            video.style.opacity = "1";
+          });
+        } catch (e) {
+          console.log("[AR_FIX_ERROR]", e);
+        }
+      };
+
+      sceneEl.addEventListener("loaded", apply);
+      setTimeout(apply, 500);
+      setTimeout(apply, 1500);
+      setInterval(apply, 1000);
     }
+
+    forceTransparentARCanvas();
 
     function stopAllVoices() {
       Object.values(voiceMap).forEach(audio => {
@@ -727,12 +650,10 @@ This forest is a promise to the future.`
       }
 
       if (characterRoot) {
-        characterRoot.setAttribute("position", "0 0 0");
+        characterRoot.setAttribute("position", "0 0.45 0");
       }
 
-      if (characterBody) {
-        characterBody.setAttribute("rotation", "0 180 0");
-      }
+      applyBaseModelRotation();
     }
 
     function animateCharacter() {
@@ -743,12 +664,15 @@ This forest is a promise to the future.`
 
       const bodyY = Math.sin(t * 1.2) * 0.025;
       if (characterRoot) {
-        characterRoot.setAttribute("position", `0 ${bodyY.toFixed(3)} 0`);
+        characterRoot.setAttribute("position", `0 ${(0.45 + bodyY).toFixed(3)} 0`);
       }
 
       const nod = Math.sin(t * 1.4) * 2.0;
       if (characterBody) {
-        characterBody.setAttribute("rotation", `${nod.toFixed(2)} 0 0`);
+        const x = MODEL_BASE_ROTATION.x + nod;
+        const y = MODEL_BASE_ROTATION.y;
+        const z = MODEL_BASE_ROTATION.z;
+        characterBody.setAttribute("rotation", `${x.toFixed(2)} ${y} ${z}`);
       }
 
       const mouthOpen =
@@ -788,9 +712,7 @@ This forest is a promise to the future.`
     }
 
     document.querySelectorAll(".langBtn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        setLanguage(btn.dataset.lang);
-      });
+      btn.addEventListener("click", () => setLanguage(btn.dataset.lang));
     });
 
     voiceBtn.addEventListener("click", async () => {
@@ -835,9 +757,7 @@ This forest is a promise to the future.`
       pauseBtn.textContent = paused ? "再開" : "一時停止";
     });
 
-    restartBtn.addEventListener("click", () => {
-      restartScroll();
-    });
+    restartBtn.addEventListener("click", restartScroll);
 
     debugBtn.addEventListener("click", () => {
       debugVisible = !debugVisible;
@@ -845,44 +765,23 @@ This forest is a promise to the future.`
       updateDebug();
     });
 
-    function forceVideoStyles() {
-      const videos = document.querySelectorAll("video");
+    marker.addEventListener("markerFound", () => {
+      markerVisible = true;
+      updateDebug();
+    });
 
-      videos.forEach(video => {
-        video.setAttribute("playsinline", "");
-        video.setAttribute("webkit-playsinline", "");
-        video.style.position = "fixed";
-        video.style.top = "0";
-        video.style.left = "0";
-        video.style.width = "100vw";
-        video.style.height = "100vh";
-        video.style.objectFit = "cover";
-        video.style.zIndex = "0";
-        video.style.display = "block";
-        video.style.opacity = "1";
-      });
-
-      const canvas = document.querySelector("canvas");
-      if (canvas) {
-        canvas.style.background = "transparent";
-        canvas.style.zIndex = "1";
-      }
-
-      if (sceneEl && sceneEl.renderer) {
-        try {
-          sceneEl.renderer.setClearColor(0x000000, 0);
-        } catch (e) {
-          console.log("[setClearColor error]", e);
-        }
-      }
-    }
-
-    setInterval(forceVideoStyles, 1000);
+    marker.addEventListener("markerLost", () => {
+      markerVisible = false;
+      updateDebug();
+    });
 
     function updateDebug() {
       const videos = document.querySelectorAll("video");
       const v = videos[0];
-      const canvas = document.querySelector("canvas");
+
+      const bodyRot = characterBody ? characterBody.getAttribute("rotation") : null;
+      const rootPos = characterRoot ? characterRoot.getAttribute("position") : null;
+      const rootScale = characterRoot ? characterRoot.getAttribute("scale") : null;
 
       debug.textContent =
         "markerVisible: " + markerVisible + "\n" +
@@ -892,8 +791,13 @@ This forest is a promise to the future.`
         "videoReadyState: " + (v ? v.readyState : "none") + "\n" +
         "videoWidth: " + (v ? v.videoWidth : "none") + "\n" +
         "videoHeight: " + (v ? v.videoHeight : "none") + "\n" +
-        "canvas: " + (canvas ? "found" : "not found") + "\n" +
-        "sceneLoaded: " + (sceneLoaded ? "yes" : "no") + "\n" +
+        "canvas: " + (document.querySelector("canvas") ? "found" : "not found") + "\n" +
+        "sceneLoaded: " + (document.querySelector("a-scene")?.hasLoaded ? "yes" : "no") + "\n" +
+        "modelLoaded: " + modelLoaded + "\n" +
+        "modelError: " + modelError + "\n" +
+        "bodyRot: " + JSON.stringify(bodyRot) + "\n" +
+        "rootPos: " + JSON.stringify(rootPos) + "\n" +
+        "rootScale: " + JSON.stringify(rootScale) + "\n" +
         "model: assets/models/unfelled_forest_character.glb\n" +
         "mode: marker / HIRO\n" +
         "protocol: " + location.protocol;
@@ -901,12 +805,14 @@ This forest is a promise to the future.`
 
     setInterval(updateDebug, 1000);
 
-    document.getElementById("startBtn").addEventListener("click", () => {
-      document.getElementById("startOverlay").style.display = "none";
-      setLanguage("ja");
-      forceVideoStyles();
-      updateDebug();
-    });
+    if (startBtn && startOverlay) {
+      startBtn.addEventListener("click", () => {
+        startOverlay.style.display = "none";
+        setLanguage("ja");
+        applyBaseModelRotation();
+        console.log("[START] AR overlay closed");
+      });
+    }
 
     setLanguage("ja");
   </script>
