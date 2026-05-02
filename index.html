@@ -10,26 +10,20 @@
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.7/aframe/build/aframe-ar.min.js"></script>
 
   <style>
-    html,
-    body {
+    html, body {
       margin: 0;
       padding: 0;
-      overflow: hidden;
       width: 100%;
       height: 100%;
+      overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
-      background: transparent !important;
+      background: #000;
     }
 
     body {
       background: transparent !important;
     }
 
-    /*
-      iPhone SafariでA-Frameの青背景が出る場合への対策。
-      AR.jsのカメラvideoを背面に置き、
-      A-Frame canvasは透明にします。
-    */
     video,
     #arjs-video {
       position: fixed !important;
@@ -41,7 +35,7 @@
       z-index: 0 !important;
       display: block !important;
       opacity: 1 !important;
-      background: transparent !important;
+      background: #000 !important;
     }
 
     a-scene {
@@ -77,7 +71,6 @@
       justify-content: center;
       text-align: center;
       padding: 24px;
-      box-sizing: border-box;
     }
 
     #startCard {
@@ -112,7 +105,6 @@
       color: white;
       background: linear-gradient(135deg, #2fa36b, #75b843);
       box-shadow: 0 6px 18px rgba(0,0,0,0.28);
-      cursor: pointer;
     }
 
     #markerGuide {
@@ -132,11 +124,27 @@
       pointer-events: none;
     }
 
+    #debug {
+      position: fixed;
+      top: calc(70px + env(safe-area-inset-top));
+      left: 10px;
+      z-index: 50 !important;
+      color: #d8ffd8;
+      font-size: 11px;
+      background: rgba(0,0,0,0.58);
+      padding: 8px 10px;
+      border-radius: 8px;
+      display: none;
+      max-width: 82vw;
+      white-space: pre-line;
+      line-height: 1.35;
+    }
+
     #ui {
       position: fixed;
       left: 0;
       right: 0;
-      bottom: calc(10px + env(safe-area-inset-bottom));
+      bottom: env(safe-area-inset-bottom);
       z-index: 40 !important;
       pointer-events: none;
       padding: 10px;
@@ -172,7 +180,7 @@
       margin: 0 auto;
       border-radius: 18px;
       overflow: hidden;
-      background: linear-gradient(180deg, rgba(10, 72, 42, 0.72), rgba(5, 32, 23, 0.80));
+      background: linear-gradient(180deg, rgba(10, 72, 42, 0.68), rgba(5, 32, 23, 0.78));
       border: 1px solid rgba(210, 255, 220, 0.38);
       box-shadow: 0 10px 32px rgba(0,0,0,0.38);
       backdrop-filter: blur(8px);
@@ -215,17 +223,9 @@
     }
 
     @keyframes scrollText {
-      0% {
-        transform: translateY(0);
-      }
-
-      15% {
-        transform: translateY(0);
-      }
-
-      100% {
-        transform: translateY(-100%);
-      }
+      0% { transform: translateY(0); }
+      15% { transform: translateY(0); }
+      100% { transform: translateY(-100%); }
     }
 
     #controlBar {
@@ -243,23 +243,58 @@
       background: rgba(0,0,0,0.48);
       border: 1px solid rgba(255,255,255,0.25);
     }
-
-    #debug {
-      position: fixed;
-      top: calc(58px + env(safe-area-inset-top));
-      left: 10px;
-      z-index: 50 !important;
-      color: #d8ffd8;
-      font-size: 11px;
-      background: rgba(0,0,0,0.44);
-      padding: 6px 8px;
-      border-radius: 8px;
-      display: none;
-      max-width: 82vw;
-      white-space: pre-line;
-      pointer-events: none;
-    }
   </style>
+
+  <script>
+    /*
+      A-Frame canvas の青背景をできるだけ透明にするための補助コンポーネント
+    */
+    AFRAME.registerComponent("force-transparent-canvas", {
+      init: function () {
+        const scene = this.el;
+
+        const apply = () => {
+          try {
+            if (scene.renderer) {
+              scene.renderer.setClearColor(0x000000, 0);
+              scene.object3D.background = null;
+            }
+
+            const canvas = scene.canvas || document.querySelector("canvas");
+            if (canvas) {
+              canvas.style.background = "transparent";
+              canvas.style.zIndex = "1";
+            }
+
+            const videos = document.querySelectorAll("video");
+            videos.forEach((video) => {
+              video.setAttribute("playsinline", "");
+              video.setAttribute("webkit-playsinline", "");
+              video.style.position = "fixed";
+              video.style.top = "0";
+              video.style.left = "0";
+              video.style.width = "100vw";
+              video.style.height = "100vh";
+              video.style.objectFit = "cover";
+              video.style.zIndex = "0";
+              video.style.display = "block";
+              video.style.opacity = "1";
+            });
+
+            console.log("[AR_FIX] transparent canvas applied");
+          } catch (e) {
+            console.log("[AR_FIX_ERROR]", e);
+          }
+        };
+
+        scene.addEventListener("loaded", apply);
+        scene.addEventListener("render-target-loaded", apply);
+        setTimeout(apply, 500);
+        setTimeout(apply, 1500);
+        setInterval(apply, 1000);
+      }
+    });
+  </script>
 </head>
 
 <body>
@@ -305,23 +340,25 @@
     </div>
   </div>
 
-  <!-- 音声ファイル。assets/audio に配置してください -->
-  <audio id="voice-ja" src="./assets/audio/unfelled_forest_ja.mp3" preload="auto"></audio>
-  <audio id="voice-en" src="./assets/audio/unfelled_forest_en.mp3" preload="auto"></audio>
-  <audio id="voice-zh" src="./assets/audio/unfelled_forest_zh.mp3" preload="auto"></audio>
-  <audio id="voice-ko" src="./assets/audio/unfelled_forest_ko.mp3" preload="auto"></audio>
+  <!-- 音声ファイル。未配置でもAR表示と字幕表示は動きます -->
+  <audio id="voice-ja" src="./assets/audio/unfelled_forest_ja.mp3" preload="none"></audio>
+  <audio id="voice-en" src="./assets/audio/unfelled_forest_en.mp3" preload="none"></audio>
+  <audio id="voice-zh" src="./assets/audio/unfelled_forest_zh.mp3" preload="none"></audio>
+  <audio id="voice-ko" src="./assets/audio/unfelled_forest_ko.mp3" preload="none"></audio>
 
   <a-scene
     embedded
-    renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true; colorManagement: true;"
-    background="transparent: true"
+    force-transparent-canvas
+    renderer="alpha: true; antialias: true; logarithmicDepthBuffer: true;"
     vr-mode-ui="enabled: false"
     device-orientation-permission-ui="enabled: true"
     arjs="sourceType: webcam; debugUIEnabled: false; trackingMethod: best;"
   >
-    <a-assets>
-      <a-asset-item id="forestCharacter" src="./assets/models/unfelled_forest_character.glb"></a-asset-item>
-    </a-assets>
+    <!--
+      重要：
+      ここでは a-assets でGLBを先読みしません。
+      50MB級GLBを a-assets で待つと、sceneLoaded:no のまま止まることがあります。
+    -->
 
     <a-marker
       id="marker"
@@ -331,49 +368,49 @@
       smoothTolerance="0.01"
       smoothThreshold="3"
     >
-      <!-- キャラクター全体。上下揺れ用 -->
       <a-entity id="characterRoot" position="0 0 0">
-        <!-- GLBモデル本体。うなずき用 -->
+
+        <!-- GLBキャラクター。a-assets経由ではなく url() で直接読む -->
         <a-entity
           id="characterBody"
-          gltf-model="#forestCharacter"
+          gltf-model="url(./assets/models/unfelled_forest_character.glb)"
           position="0 0 0"
           rotation="0 180 0"
-          scale="0.72 0.72 0.72"
-        ></a-entity>
+          scale="0.72 0.72 0.72">
+        </a-entity>
 
-        <!-- 簡易口パクパーツ。位置はモデルに合わせて調整してください -->
+        <!-- 簡易口パク用の口パーツ -->
         <a-entity
           id="fakeMouth"
           position="0 1.05 -0.43"
           geometry="primitive: circle; radius: 0.055"
           material="color: #2a1512; opacity: 0.85; transparent: true; side: double"
           scale="1 0.25 1"
-          visible="false"
-        ></a-entity>
+          visible="false">
+        </a-entity>
       </a-entity>
 
-      <!-- 森の光のような簡易エフェクト -->
+      <!-- 森の光表現 -->
       <a-entity
         position="0 1.55 0"
         geometry="primitive: sphere; radius: 0.08"
         material="color: #b9ff9f; opacity: 0.68; transparent: true"
-        animation="property: position; dir: alternate; dur: 1800; loop: true; easing: easeInOutSine; to: 0 1.78 0"
-      ></a-entity>
+        animation="property: position; dir: alternate; dur: 1800; loop: true; easing: easeInOutSine; to: 0 1.78 0">
+      </a-entity>
 
       <a-entity
         position="-0.45 1.25 0.18"
         geometry="primitive: sphere; radius: 0.035"
         material="color: #d7ffc8; opacity: 0.45; transparent: true"
-        animation="property: position; dir: alternate; dur: 2300; loop: true; easing: easeInOutSine; to: -0.40 1.50 0.18"
-      ></a-entity>
+        animation="property: position; dir: alternate; dur: 2300; loop: true; easing: easeInOutSine; to: -0.40 1.50 0.18">
+      </a-entity>
 
       <a-entity
         position="0.42 1.12 -0.12"
         geometry="primitive: sphere; radius: 0.045"
         material="color: #d7ffc8; opacity: 0.40; transparent: true"
-        animation="property: position; dir: alternate; dur: 2600; loop: true; easing: easeInOutSine; to: 0.48 1.42 -0.12"
-      ></a-entity>
+        animation="property: position; dir: alternate; dur: 2600; loop: true; easing: easeInOutSine; to: 0.48 1.42 -0.12">
+      </a-entity>
     </a-marker>
 
     <a-entity camera></a-entity>
@@ -612,10 +649,10 @@ This forest is a promise to the future.`
     const debug = document.getElementById("debug");
     const marker = document.getElementById("marker");
     const voiceBtn = document.getElementById("voiceBtn");
-
     const characterRoot = document.getElementById("characterRoot");
     const characterBody = document.getElementById("characterBody");
     const fakeMouth = document.getElementById("fakeMouth");
+    const sceneEl = document.querySelector("a-scene");
 
     const voiceMap = {
       ja: document.getElementById("voice-ja"),
@@ -628,11 +665,30 @@ This forest is a promise to the future.`
     let paused = false;
     let debugVisible = false;
     let markerVisible = false;
-
     let currentVoice = null;
     let speaking = false;
     let animationTimer = null;
     let startTime = 0;
+    let sceneLoaded = false;
+
+    if (sceneEl) {
+      sceneEl.addEventListener("loaded", () => {
+        sceneLoaded = true;
+        console.log("[SCENE] loaded");
+      });
+    }
+
+    if (marker) {
+      marker.addEventListener("markerFound", () => {
+        markerVisible = true;
+        updateDebug();
+      });
+
+      marker.addEventListener("markerLost", () => {
+        markerVisible = false;
+        updateDebug();
+      });
+    }
 
     function stopAllVoices() {
       Object.values(voiceMap).forEach(audio => {
@@ -685,19 +741,16 @@ This forest is a promise to the future.`
       const now = performance.now();
       const t = (now - startTime) / 1000;
 
-      // ゆっくりした体の上下ゆれ
       const bodyY = Math.sin(t * 1.2) * 0.025;
       if (characterRoot) {
         characterRoot.setAttribute("position", `0 ${bodyY.toFixed(3)} 0`);
       }
 
-      // 軽いうなずき
       const nod = Math.sin(t * 1.4) * 2.0;
       if (characterBody) {
         characterBody.setAttribute("rotation", `${nod.toFixed(2)} 180 0`);
       }
 
-      // 口パク風アニメーション
       const mouthOpen =
         0.18 +
         Math.abs(Math.sin(t * 9.0)) * 0.45 +
@@ -722,10 +775,7 @@ This forest is a promise to the future.`
 
       stopAllVoices();
       stopSpeakingAnimation();
-
-      if (voiceBtn) {
-        voiceBtn.textContent = "音声ガイド";
-      }
+      voiceBtn.textContent = "音声ガイド";
 
       captionTitle.textContent = texts[lang].title;
       captionText.textContent = texts[lang].body;
@@ -735,11 +785,12 @@ This forest is a promise to the future.`
       });
 
       restartScroll();
-      updateDebug();
     }
 
     document.querySelectorAll(".langBtn").forEach(btn => {
-      btn.addEventListener("click", () => setLanguage(btn.dataset.lang));
+      btn.addEventListener("click", () => {
+        setLanguage(btn.dataset.lang);
+      });
     });
 
     voiceBtn.addEventListener("click", async () => {
@@ -784,7 +835,9 @@ This forest is a promise to the future.`
       pauseBtn.textContent = paused ? "再開" : "一時停止";
     });
 
-    restartBtn.addEventListener("click", restartScroll);
+    restartBtn.addEventListener("click", () => {
+      restartScroll();
+    });
 
     debugBtn.addEventListener("click", () => {
       debugVisible = !debugVisible;
@@ -792,100 +845,67 @@ This forest is a promise to the future.`
       updateDebug();
     });
 
-    marker.addEventListener("markerFound", () => {
-      markerVisible = true;
-      updateDebug();
-    });
+    function forceVideoStyles() {
+      const videos = document.querySelectorAll("video");
 
-    marker.addEventListener("markerLost", () => {
-      markerVisible = false;
-      updateDebug();
-    });
+      videos.forEach(video => {
+        video.setAttribute("playsinline", "");
+        video.setAttribute("webkit-playsinline", "");
+        video.style.position = "fixed";
+        video.style.top = "0";
+        video.style.left = "0";
+        video.style.width = "100vw";
+        video.style.height = "100vh";
+        video.style.objectFit = "cover";
+        video.style.zIndex = "0";
+        video.style.display = "block";
+        video.style.opacity = "1";
+      });
+
+      const canvas = document.querySelector("canvas");
+      if (canvas) {
+        canvas.style.background = "transparent";
+        canvas.style.zIndex = "1";
+      }
+
+      if (sceneEl && sceneEl.renderer) {
+        try {
+          sceneEl.renderer.setClearColor(0x000000, 0);
+        } catch (e) {
+          console.log("[setClearColor error]", e);
+        }
+      }
+    }
+
+    setInterval(forceVideoStyles, 1000);
 
     function updateDebug() {
-      const video = document.querySelector("video") || document.querySelector("#arjs-video");
+      const videos = document.querySelectorAll("video");
+      const v = videos[0];
       const canvas = document.querySelector("canvas");
-      const scene = document.querySelector("a-scene");
 
       debug.textContent =
         "markerVisible: " + markerVisible + "\n" +
         "language: " + currentLang + "\n" +
         "speaking: " + speaking + "\n" +
-        "video: " + (video ? "found" : "not found") + "\n" +
+        "videoCount: " + videos.length + "\n" +
+        "videoReadyState: " + (v ? v.readyState : "none") + "\n" +
+        "videoWidth: " + (v ? v.videoWidth : "none") + "\n" +
+        "videoHeight: " + (v ? v.videoHeight : "none") + "\n" +
         "canvas: " + (canvas ? "found" : "not found") + "\n" +
-        "sceneLoaded: " + (scene && scene.hasLoaded ? "yes" : "no") + "\n" +
+        "sceneLoaded: " + (sceneLoaded ? "yes" : "no") + "\n" +
         "model: assets/models/unfelled_forest_character.glb\n" +
-        "mode: marker / HIRO";
+        "mode: marker / HIRO\n" +
+        "protocol: " + location.protocol;
     }
 
-    /*
-      A-Frameの青背景を透明化する補正。
-      iPhone Safariで特に重要です。
-    */
-    function forceTransparentARCanvas() {
-      const sceneEl = document.querySelector("a-scene");
-
-      if (!sceneEl) return;
-
-      function applyFix(label) {
-        try {
-          if (sceneEl.renderer) {
-            sceneEl.renderer.setClearColor(0x000000, 0);
-            sceneEl.renderer.domElement.style.background = "transparent";
-          }
-
-          const canvas = sceneEl.canvas || document.querySelector("canvas");
-          if (canvas) {
-            canvas.style.background = "transparent";
-            canvas.style.zIndex = "1";
-          }
-
-          const video = document.querySelector("video") || document.querySelector("#arjs-video");
-          if (video) {
-            video.style.position = "fixed";
-            video.style.top = "0";
-            video.style.left = "0";
-            video.style.width = "100vw";
-            video.style.height = "100vh";
-            video.style.objectFit = "cover";
-            video.style.zIndex = "0";
-            video.style.display = "block";
-            video.style.opacity = "1";
-          }
-
-          console.log("[AR_FIX] transparent canvas applied:", label);
-          updateDebug();
-        } catch (e) {
-          console.log("[AR_FIX_ERROR]", label, e);
-        }
-      }
-
-      sceneEl.addEventListener("loaded", () => {
-        applyFix("scene loaded");
-      });
-
-      setTimeout(() => applyFix("timeout 500"), 500);
-      setTimeout(() => applyFix("timeout 1500"), 1500);
-      setTimeout(() => applyFix("timeout 3000"), 3000);
-    }
-
-    forceTransparentARCanvas();
-
-    setInterval(() => {
-      updateDebug();
-    }, 1000);
+    setInterval(updateDebug, 1000);
 
     document.getElementById("startBtn").addEventListener("click", () => {
       document.getElementById("startOverlay").style.display = "none";
       setLanguage("ja");
-
-      /*
-        iPhone Safariで、ユーザー操作後にカメラvideoが生成される場合があるため、
-        開始ボタン後にも透明化処理を再実行します。
-      */
-      setTimeout(() => {
-        forceTransparentARCanvas();
-      }, 500);
+      forceVideoStyles();
+      updateDebug();
     });
 
     setLanguage("ja");
