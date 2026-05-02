@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>長井市 不伐の森ARガイド</title>
+
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.7/aframe/build/aframe-ar.min.js"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: #000;
+    }
+
+    #startOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background:
+        radial-gradient(circle at center top, rgba(90,160,100,0.35), transparent 45%),
+        linear-gradient(180deg, rgba(4,22,12,0.96), rgba(0,0,0,0.96));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+
+    #startCard {
+      max-width: 460px;
+      padding: 22px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    }
+
+    #startCard h1 {
+      font-size: 22px;
+      margin: 0 0 12px;
+      letter-spacing: 0.04em;
+    }
+
+    #startCard p {
+      font-size: 15px;
+      line-height: 1.75;
+      margin: 0 0 18px;
+      opacity: 0.95;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, #2fa36b, #75b843);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.28);
+    }
+
+    #markerGuide {
+      position: fixed;
+      top: calc(10px + env(safe-area-inset-top));
+      left: 10px;
+      right: 10px;
+      z-index: 18;
+      color: white;
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 8px 12px;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.42);
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+    }
+
+    #ui {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: env(safe-area-inset-bottom);
+      z-index: 20;
+      pointer-events: none;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    #languageBar, #controlBar {
+      display: flex;
+      justify-content: center;
+      gap: 7px;
+      margin-bottom: 8px;
+      pointer-events: auto;
+      flex-wrap: wrap;
+    }
+
+    .langBtn {
+      padding: 8px 12px;
+      font-size: 13px;
+      background: rgba(20, 80, 45, 0.78);
+      border: 1px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(8px);
+    }
+
+    .langBtn.active {
+      background: rgba(255, 255, 255, 0.92);
+      color: #14542b;
+    }
+
+    #captionPlate {
+      width: min(92vw, 560px);
+      height: 34vh;
+      min-height: 210px;
+      margin: 0 auto;
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(180deg, rgba(10, 72, 42, 0.66), rgba(5, 32, 23, 0.74));
+      border: 1px solid rgba(210, 255, 220, 0.38);
+      box-shadow: 0 10px 32px rgba(0,0,0,0.38);
+      backdrop-filter: blur(8px);
+      color: white;
+      pointer-events: auto;
+      position: relative;
+    }
+
+    #captionTitle {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px 8px;
+      font-size: 16px;
+      font-weight: 800;
+      background: linear-gradient(180deg, rgba(5,30,18,0.92), rgba(5,30,18,0.50), transparent);
+      z-index: 2;
+      letter-spacing: 0.04em;
+    }
+
+    #scrollMask {
+      position: absolute;
+      inset: 44px 0 0;
+      overflow: hidden;
+    }
+
+    #captionText {
+      white-space: pre-line;
+      padding: 0 18px 28px;
+      font-size: 15px;
+      line-height: 1.9;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.65);
+      transform: translateY(100%);
+      animation: scrollText 58s linear infinite;
+    }
+
+    #captionPlate.paused #captionText {
+      animation-play-state: paused;
+    }
+
+    @keyframes scrollText {
+      0% { transform: translateY(100%); }
+      100% { transform: translateY(-115%); }
+    }
+
+    #controlBar {
+      margin-top: 8px;
+    }
+
+    #controlBar button {
+      padding: 8px 12px;
+      font-size: 13px;
+      background: rgba(0,0,0,0.48);
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+
+    #debug {
+      position: fixed;
+      top: calc(58px + env(safe-area-inset-top));
+      left: 10px;
+      z-index: 19;
+      color: #d8ffd8;
+      font-size: 11px;
+      background: rgba(0,0,0,0.44);
+      padding: 6px 8px;
+      border-radius: 8px;
+      display: none;
+      max-width: 70vw;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="startOverlay">
+    <div id="startCard">
+      <h1>長井市 不伐の森ARガイド</h1>
+      <p>
+        カメラを使用して、ARキャラクターが<br>
+        「不伐の森条例」を多言語で説明します。<br>
+        まずはカメラの使用を許可してください。
+      </p>
+      <button id="startBtn">ARを開始する</button>
+    </div>
+  </div>
+
+  <div id="markerGuide">
+    ARマーカーにカメラを向けてください。<br>
+    キャラクターと説明プレートが表示されます。
+  </div>
+
+  <div id="debug"></div>
+
+  <div id="ui">
+    <div id="languageBar">
+      <button class="langBtn active" data-lang="ja">日本語</button>
+      <button class="langBtn" data-lang="en">English</button>
+      <button class="langBtn" data-lang="zh">中文</button>
+      <button class="langBtn" data-lang="ko">한국어</button>
+    </div>
+
+    <div id="captionPlate">
+      <div id="captionTitle">長井市 不伐の森条例</div>
+      <div id="scrollMask">
+        <div id="captionText"></div>
+      </div>
+    </div>
+
+    <div id="controlBar">
+      <button id="voiceBtn">音声ガイド</button>
+      <button id="pauseBtn">一時停止</button>
+      <button id="restartBtn">最初から</button>
+      <button id="debugBtn">Debug</button>
+    </div>
+  </div>
+
+  <audio id="voice-ja" src="./assets/audio/unfelled_forest_ja.mp3" preload="auto"></audio>
+  <audio id="voice-en" src="./assets/audio/unfelled_forest_en.mp3" preload="auto"></audio>
+  <audio id="voice-zh" src="./assets/audio/unfelled_forest_zh.mp3" preload="auto"></audio>
+  <audio id="voice-ko" src="./assets/audio/unfelled_forest_ko.mp3" preload="auto"></audio>
+
+  <a-scene
+    embedded
+    renderer="logarithmicDepthBuffer: true; antialias: true; alpha: true;"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: true"
+    arjs="sourceType: webcam; videoTexture: true; debugUIEnabled: false; trackingMethod: best;"
+  >
+    <a-assets>
+      <a-asset-item id="forestCharacter" src="./assets/models/unfelled_forest_character.glb"></a-asset-item>
+    </a-assets>
+
+    <a-marker id="marker" preset="hiro" smooth="true" smoothCount="8" smoothTolerance="0.01" smoothThreshold="3">
+      <a-entity id="characterRoot" position="0 0 0">
+        <a-entity
+          id="characterBody"
+          gltf-model="#forestCharacter"
+          position="0 0 0"
+          rotation="0 180 0"
+          scale="0.72 0.72 0.72">
+        </a-entity>
+
+        <a-entity
+          id="fakeMouth"
+          position="0 1.05 -0.43"
+          geometry="primitive: circle; radius: 0.055"
+          material="color: #2a1512; opacity: 0.85; transparent: true; side: double"
+          scale="1 0.25 1"
+          visible="false">
+        </a-entity>
+      </a-entity>
+
+      <a-entity
+        position="0 1.55 0"
+        geometry="primitive: sphere; radius: 0.08"
+        material="color: #b9ff9f; opacity: 0.68; transparent: true"
+        animation="property: position; dir: alternate; dur: 1800; loop: true; easing: easeInOutSine; to: 0 1.78 0">
+      </a-entity>
+
+      <a-entity
+        position="-0.45 1.25 0.18"
+        geometry="primitive: sphere; radius: 0.035"
+        material="color: #d7ffc8; opacity: 0.45; transparent: true"
+        animation="property: position; dir: alternate; dur: 2300; loop: true; easing: easeInOutSine; to: -0.40 1.50 0.18">
+      </a-entity>
+
+      <a-entity
+        position="0.42 1.12 -0.12"
+        geometry="primitive: sphere; radius: 0.045"
+        material="color: #d7ffc8; opacity: 0.40; transparent: true"
+        animation="property: position; dir: alternate; dur: 2600; loop: true; easing: easeInOutSine; to: 0.48 1.42 -0.12">
+      </a-entity>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <script>
+    const texts = {
+      ja: {
+        title: "長井市 不伐の森条例",
+        body:
+`こんにちは。
+ぼくは、不伐の森の精霊です。
+
+長井市には、森を未来へ残すための
+「不伐の森条例」があります。
+
+この条例は、
+長井市がいつまでも緑豊かなまちであることを願い、
+森を永久に伐採せず、
+市民みんなで育て、守り、
+次の世代へ受け継いでいくための約束です。
+
+不伐の森は、
+ただ木を残すだけの場所ではありません。
+
+人と自然がどう向き合うのか。
+水、土、森、命をどう守るのか。
+そのことを考えるための
+長井市の大切なシンボルです。
+
+この森は、
+今を生きる人だけのものではありません。
+
+未来の子どもたちへ手渡す、
+長井市の宝物です。
+
+どうか、この森の声に
+耳をすませてみてください。
+
+この森は、未来への約束。`
+      },
+      en: {
+        title: "Nagai City’s Unfelled Forest Ordinance",
+        body:
+`Hello.
+I am the spirit of the Unfelled Forest.
+
+In Nagai City, there is an ordinance called
+the “Unfelled Forest Ordinance.”
+
+It is a promise to protect this forest forever,
+without cutting it down,
+so that Nagai City will remain
+a green and beautiful place.
+
+This forest is cared for by the people of Nagai
+and passed on to future generations.
+
+The Unfelled Forest is not only a place
+where trees remain.
+
+It is a symbol that asks us
+how people should live together with nature,
+and how we should protect water, soil,
+forests, and life.
+
+This forest does not belong only
+to the people living today.
+
+It is a treasure to be handed down
+to the children of the future.
+
+Please listen carefully
+to the voice of the forest.
+
+This forest is a promise to the future.`
+      },
+      zh: {
+        title: "长井市“不伐之森”条例",
+        body:
+`你好。
+我是“不伐之森”的精灵。
+
+在长井市，有一项名为
+“不伐之森条例”的规定。
+
+这是一项为了让长井市
+永远保持绿色与美丽，
+不砍伐森林，
+由市民共同守护、培育，
+并传承给未来世代的约定。
+
+“不伐之森”
+并不只是保留树木的地方。
+
+它象征着人类应该如何与自然共生，
+如何保护水、土壤、森林和生命。
+
+这片森林
+并不只属于现在的人们。
+
+它是长井市要交给未来孩子们的宝物。
+
+请静静聆听
+森林的声音。
+
+这片森林，是面向未来的约定。`
+      },
+      ko: {
+        title: "나가이시 불벌의 숲 조례",
+        body:
+`안녕하세요.
+저는 불벌의 숲의 정령입니다.
+
+나가이시에는
+“불벌의 숲 조례”가 있습니다.
+
+이 조례는
+나가이시가 언제까지나 푸른 도시로 남기를 바라며,
+숲을 영원히 베지 않고,
+시민들이 함께 가꾸고 지켜
+미래 세대에게 물려주기 위한 약속입니다.
+
+불벌의 숲은
+단순히 나무를 남겨 두는 곳이 아닙니다.
+
+사람과 자연이 어떻게 함께 살아갈 것인지,
+물과 흙, 숲과 생명을 어떻게 지킬 것인지
+생각하게 해 주는
+나가이시의 소중한 상징입니다.
+
+이 숲은
+오늘을 사는 사람들만의 것이 아닙니다.
+
+미래의 아이들에게 전해 줄
+나가이시의 보물입니다.
+
+잠시 귀를 기울여
+숲의 목소리를 들어 보세요.
+
+이 숲은 미래를 향한 약속입니다.`
+      }
+    };
+
+    const captionTitle = document.getElementById("captionTitle");
+    const captionText = document.getElementById("captionText");
+    const captionPlate = document.getElementById("captionPlate");
+    const pauseBtn = document.getElementById("pauseBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const debugBtn = document.getElementById("debugBtn");
+    const debug = document.getElementById("debug");
+    const marker = document.getElementById("marker");
+    const voiceBtn = document.getElementById("voiceBtn");
+    const characterRoot = document.getElementById("characterRoot");
+    const characterBody = document.getElementById("characterBody");
+    const fakeMouth = document.getElementById("fakeMouth");
+
+    const voiceMap = {
+      ja: document.getElementById("voice-ja"),
+      en: document.getElementById("voice-en"),
+      zh: document.getElementById("voice-zh"),
+      ko: document.getElementById("voice-ko")
+    };
+
+    let currentLang = "ja";
+    let paused = false;
+    let debugVisible = false;
+    let markerVisible = false;
+    let currentVoice = null;
+    let speaking = false;
+    let animationTimer = null;
+    let startTime = 0;
+
+    function stopAllVoices() {
+      Object.values(voiceMap).forEach(audio => {
+        if (!audio) return;
+        audio.pause();
+        audio.currentTime = 0;
+      });
+    }
+
+    function startSpeakingAnimation() {
+      speaking = true;
+      startTime = performance.now();
+
+      if (fakeMouth) fakeMouth.setAttribute("visible", "true");
+      if (animationTimer) cancelAnimationFrame(animationTimer);
+
+      animateCharacter();
+    }
+
+    function stopSpeakingAnimation() {
+      speaking = false;
+
+      if (animationTimer) {
+        cancelAnimationFrame(animationTimer);
+        animationTimer = null;
+      }
+
+      if (fakeMouth) {
+        fakeMouth.setAttribute("scale", "1 0.18 1");
+        fakeMouth.setAttribute("visible", "false");
+      }
+
+      if (characterRoot) characterRoot.setAttribute("position", "0 0 0");
+      if (characterBody) characterBody.setAttribute("rotation", "0 180 0");
+    }
+
+    function animateCharacter() {
+      if (!speaking) return;
+
+      const now = performance.now();
+      const t = (now - startTime) / 1000;
+
+      const bodyY = Math.sin(t * 1.2) * 0.025;
+      if (characterRoot) characterRoot.setAttribute("position", `0 ${bodyY.toFixed(3)} 0`);
+
+      const nod = Math.sin(t * 1.4) * 2.0;
+      if (characterBody) characterBody.setAttribute("rotation", `${nod.toFixed(2)} 180 0`);
+
+      const mouthOpen =
+        0.18 +
+        Math.abs(Math.sin(t * 9.0)) * 0.45 +
+        Math.abs(Math.sin(t * 15.0)) * 0.15;
+
+      if (fakeMouth) fakeMouth.setAttribute("scale", `1 ${mouthOpen.toFixed(2)} 1`);
+
+      animationTimer = requestAnimationFrame(animateCharacter);
+    }
+
+    function restartScroll() {
+      captionText.style.animation = "none";
+      void captionText.offsetHeight;
+      captionText.style.animation = "";
+      captionPlate.classList.toggle("paused", paused);
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+
+      stopAllVoices();
+      stopSpeakingAnimation();
+      voiceBtn.textContent = "音声ガイド";
+
+      captionTitle.textContent = texts[lang].title;
+      captionText.textContent = texts[lang].body;
+
+      document.querySelectorAll(".langBtn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.lang === lang);
+      });
+
+      restartScroll();
+    }
+
+    document.querySelectorAll(".langBtn").forEach(btn => {
+      btn.addEventListener("click", () => setLanguage(btn.dataset.lang));
+    });
+
+    voiceBtn.addEventListener("click", async () => {
+      if (speaking && currentVoice) {
+        currentVoice.pause();
+        currentVoice.currentTime = 0;
+        voiceBtn.textContent = "音声ガイド";
+        stopSpeakingAnimation();
+        return;
+      }
+
+      stopAllVoices();
+      stopSpeakingAnimation();
+
+      currentVoice = voiceMap[currentLang];
+
+      if (!currentVoice) {
+        alert("この言語の音声ファイルが見つかりません。");
+        return;
+      }
+
+      try {
+        currentVoice.currentTime = 0;
+        await currentVoice.play();
+
+        voiceBtn.textContent = "音声停止";
+        startSpeakingAnimation();
+
+        currentVoice.onended = () => {
+          voiceBtn.textContent = "音声ガイド";
+          stopSpeakingAnimation();
+        };
+      } catch (e) {
+        console.log("Audio play error:", e);
+        alert("音声ファイルが未配置、または再生できません。assets/audio に mp3 を入れてください。");
+      }
+    });
+
+    pauseBtn.addEventListener("click", () => {
+      paused = !paused;
+      captionPlate.classList.toggle("paused", paused);
+      pauseBtn.textContent = paused ? "再開" : "一時停止";
+    });
+
+    restartBtn.addEventListener("click", restartScroll);
+
+    debugBtn.addEventListener("click", () => {
+      debugVisible = !debugVisible;
+      debug.style.display = debugVisible ? "block" : "none";
+    });
+
+    marker.addEventListener("markerFound", () => {
+      markerVisible = true;
+      updateDebug();
+    });
+
+    marker.addEventListener("markerLost", () => {
+      markerVisible = false;
+      updateDebug();
+    });
+
+    function updateDebug() {
+      debug.textContent =
+        "markerVisible: " + markerVisible + "\n" +
+        "language: " + currentLang + "\n" +
+        "model: assets/models/unfelled_forest_character.glb\n" +
+        "mode: marker / HIRO\n" +
+        "speaking: " + speaking;
+    }
+
+    setInterval(updateDebug, 1000);
+
+    document.getElementById("startBtn").addEventListener("click", () => {
+      document.getElementById("startOverlay").style.display = "none";
+      setLanguage("ja");
+    });
+
+    setLanguage("ja");
+  </script>
+</body>
+</html>
